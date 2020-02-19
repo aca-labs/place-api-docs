@@ -1,0 +1,159 @@
+openapi: 3.0.0
+info:
+  title: Analytics
+  version: '0.1'
+  description: |-
+    The Analytics API provides endpoints for querying current state, historical trends and summarisations of an environment and interactions within it.
+
+    It is currently within an early release phase and will undergo regular breaking changes.
+
+    **Not recommended for production use.**
+servers:
+  - url: 'https://place.ll-uat.aca.im'
+    variables:
+      host:
+        default: place.ll-uat.aca.im
+        description: Host where place is deployed.
+    description: UAT infrastructure
+paths:
+  '/location/{id}/presence':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: Location ID to query
+    get:
+      summary: Location Presence
+      tags:
+        - presence
+      responses:
+        '200':
+          description: ''
+          headers: {}
+          content:
+            application/json:
+              schema:
+                title: aggregate
+                type: object
+                properties:
+                  event:
+                    type: string
+                  value:
+                    type: number
+                required:
+                  - event
+                  - value
+                x-examples: {}
+              examples:
+                Example:
+                  value:
+                    event: presence
+                    value: 1
+        '204':
+          description: No event data is available for the time requested.
+      operationId: get-location-id-presence
+      description: |-
+        Queries presence information for an individual location. Depending on the parameters the query will be one of:
+
+        | Query Type | Params                | Description
+        | ---------- | --------------------- | -----------
+        | Instant    | `at`                  | Status at a specific point in time.
+        | Aggregate  | `start`, `stop`       | Average (time-weighted mean) across a time range.
+        | Trend      | `start`, `stop`, `at` | Confidence for a specific time of day with the requested time range.
+
+        If no params are provided, the current known status is returned.
+
+        Note: all times params are RFC3339
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: at
+          description: 'A specific point in time for intstantaneous queries, or time of day for trend queries.'
+        - schema:
+            type: string
+          in: query
+          name: start
+          description: Start of the time range to aggregate.
+        - schema:
+            type: string
+          in: query
+          name: stop
+          description: End of the time range to aggregate.
+        - schema:
+            type: string
+          in: query
+          name: from
+          description: A source type (e.g. `camera`). If specified only events from this type will be used.
+  '/level/{id}/presence':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Level Presence
+      tags: []
+      responses: {}
+      operationId: get-level-id-presence
+components:
+  schemas:
+    aggregate:
+      title: aggregate
+      type: object
+      properties:
+        event:
+          type: string
+        value:
+          type: number
+      required:
+        - event
+        - value
+      x-examples: {}
+    aggregate-with-locations:
+      title: aggregate-with-locations
+      type: object
+      x-examples:
+        Example:
+          event: presence
+          value: 1
+          locations:
+            sys-123: 1
+            sys-abc: 0
+      properties:
+        event:
+          type: string
+        value:
+          type: number
+          description: Aggregate value.
+        locations:
+          type: object
+          description: Individual location aggregates contributing towards this.
+          properties:
+            '<id>':
+              type: number
+      required:
+        - event
+        - value
+        - locations
+    rfc3339:
+      type: string
+      title: rfc3339
+      pattern: "/^(?<fullyear>\\d{4})-(?<month>0[1-9]|1[0-2])-(?<mday>0[1-9]|[12][0-9]|3[01])T(?<hour>[01][0-9]|2[0-3]):(?<minute>[0-5][0-9]):(?<second>[0-5][0-9]|60)(?<secfrac>\\.[0-9]+)?(Z|(\\+|-)(?<offset_hour>[01][0-9]|2[0-3]):(?<offset_minute>[0-5][0-9]))$/i"
+      description: 'An [RFC3339](https://tools.ietf.org/html/rfc3339) date-time string'
+      x-examples:
+        Example: '2018-01-29T20:36:30+00:00'
+  securitySchemes:
+    API Key:
+      name: X-API-Key
+      type: apiKey
+      in: header
+      description: ''
+tags:
+  - name: presence
+    description: Presence queries
