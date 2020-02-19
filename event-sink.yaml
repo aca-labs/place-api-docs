@@ -136,7 +136,7 @@ paths:
         - Ingest
 components:
   schemas:
-    Event:
+    event:
       title: Event
       type: object
       description: ''
@@ -153,20 +153,7 @@ components:
           val: 1
       properties:
         evt:
-          type: string
-          description: Event type.  One of a predefined set of common detectable event types.
-          enum:
-            - power
-            - in_call
-            - booked
-            - in_use
-            - presence
-            - people_count
-            - connected
-            - running
-            - door_open
-            - door_access
-          example: presence
+          $ref: './analytics.yaml#/components/schemas/event-type'
         uts:
           type: number
           description: 'Unix timestamp of the event occurrence (milliseconds from the epoch of 1970-01-01T00:00:00Z).'

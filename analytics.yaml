@@ -40,8 +40,12 @@ paths:
                 properties:
                   event:
                     type: string
+                    enum:
+                      - presence
                   value:
                     type: number
+                    maximum: 1
+                    minimum: 0
                 required:
                   - event
                   - value
@@ -96,51 +100,8 @@ paths:
         name: id
         in: path
         required: true
-    get:
-      summary: Level Presence
-      tags: []
-      responses: {}
-      operationId: get-level-id-presence
 components:
   schemas:
-    aggregate:
-      title: aggregate
-      type: object
-      properties:
-        event:
-          type: string
-        value:
-          type: number
-      required:
-        - event
-        - value
-      x-examples: {}
-    aggregate-with-locations:
-      title: aggregate-with-locations
-      type: object
-      x-examples:
-        Example:
-          event: presence
-          value: 1
-          locations:
-            sys-123: 1
-            sys-abc: 0
-      properties:
-        event:
-          type: string
-        value:
-          type: number
-          description: Aggregate value.
-        locations:
-          type: object
-          description: Individual location aggregates contributing towards this.
-          properties:
-            '<id>':
-              type: number
-      required:
-        - event
-        - value
-        - locations
     rfc3339:
       type: string
       title: rfc3339
@@ -148,6 +109,21 @@ components:
       description: 'An [RFC3339](https://tools.ietf.org/html/rfc3339) date-time string'
       x-examples:
         Example: '2018-01-29T20:36:30+00:00'
+    event-type:
+      type: string
+      enum:
+        - power
+        - in_call
+        - booked
+        - in_use
+        - presence
+        - people_count
+        - connected
+        - running
+        - door_open
+        - door_access
+      title: Event Type
+      description: 'Example event types (note: will expand over time).'
   securitySchemes:
     API Key:
       name: X-API-Key
