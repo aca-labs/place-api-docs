@@ -126,28 +126,6 @@ paths:
           in: query
           name: from
           description: Filter to a specific source type.
-  '/location/{id}':
-    parameters:
-      - schema:
-          type: string
-        name: id
-        in: path
-        required: true
-    get:
-      summary: Location Metadata
-      tags:
-        - metadata
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/location'
-        '404':
-          description: Not Found
-      operationId: get-location-id
-      description: Retrieves metadata available for a location.
   '/location/{id}/utilisation':
     parameters:
       - schema:
@@ -199,37 +177,6 @@ components:
       description: 'An [RFC3339](https://tools.ietf.org/html/rfc3339) date-time string'
       x-examples:
         Example: '2018-01-29T20:36:30+00:00'
-    location:
-      title: Location
-      type: object
-      description: |-
-        Metadata associated with a location.
-
-        Additional keys may exist containing supplementary metadata propogated by the originating system.
-      properties:
-        id:
-          type: string
-          description: Globally unique identifier for this location.
-        level:
-          type: string
-          description: Identifier of the level this location is in.
-        building:
-          type: string
-          description: Identifier of the building this location is in.
-        organisation:
-          type: string
-          description: Identifier of the organisation this location belongs to.
-        capacity:
-          type: integer
-          description: Number of people this location accomodates.
-        bookable:
-          type: boolean
-          description: True if usage can be reserved.
-      required:
-        - id
-        - level
-        - building
-        - organisation
   securitySchemes:
     API Key:
       name: X-API-Key
