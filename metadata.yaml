@@ -92,7 +92,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/building'
+                $ref: '#/components/schemas/organisation'
         '404':
           description: The requested location is not tracked by this system.
       operationId: get-organisation-id
@@ -188,4 +188,8 @@ components:
       name: API Key
       type: apiKey
       in: header
-tags: location level building organisation
+tags:
+  - name: location
+  - name: level
+  - name: building
+  - name: organisation
