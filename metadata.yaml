@@ -4,7 +4,8 @@ info:
   version: '1.0'
   description: 'The Metadata API provides addition information and context about location, level, buildings and organisations.'
 servers:
-  - {}
+  - url: 'https://place.ll-uat.aca.im'
+    description: UAT infrastructure
 paths:
   '/location/{id}':
     parameters:
