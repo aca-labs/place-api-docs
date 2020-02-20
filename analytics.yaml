@@ -37,39 +37,24 @@ paths:
               schema:
                 title: aggregate
                 type: object
+                x-examples: {}
                 properties:
-                  event:
-                    type: string
-                    enum:
-                      - presence
                   value:
                     type: number
                     maximum: 1
                     minimum: 0
+                    description: Presence confidence
                 required:
-                  - event
                   - value
-                x-examples: {}
               examples:
                 Example:
                   value:
                     event: presence
                     value: 1
         '204':
-          description: No event data is available for the time requested.
+          description: No event data is available for the time requested. This will occur if `at` is prior to any data being available.
       operationId: get-location-id-presence
-      description: |-
-        Queries presence information for an individual location. Depending on the parameters the query will be one of:
-
-        | Query Type | Params                | Description
-        | ---------- | --------------------- | -----------
-        | Instant    | `at`                  | Status at a specific point in time.
-        | Aggregate  | `start`, `stop`       | Average (time-weighted mean) across a time range.
-        | Trend      | `start`, `stop`, `at` | Confidence for a specific time of day with the requested time range.
-
-        If no params are provided, the current known status is returned.
-
-        Note: all times params are RFC3339
+      description: Provides presence insights for a location.
       security:
         - API Key: []
       parameters:
@@ -77,53 +62,174 @@ paths:
             type: string
           in: query
           name: at
-          description: 'A specific point in time for intstantaneous queries, or time of day for trend queries.'
+          description: A point in time (RFC3339) to query.
+          required: true
         - schema:
             type: string
+            enum:
+              - daily
+              - weekly
+              - fortnightly
+              - monthly
+              - yearly
           in: query
-          name: start
-          description: Start of the time range to aggregate.
-        - schema:
-            type: string
-          in: query
-          name: stop
-          description: End of the time range to aggregate.
+          name: window
+          description: Seasonality window to use for predictions.
         - schema:
             type: string
           in: query
           name: from
           description: A source type (e.g. `camera`). If specified only events from this type will be used.
-  '/level/{id}/presence':
+  '/location/{id}/state/{event}':
     parameters:
       - schema:
           type: string
         name: id
         in: path
         required: true
+        description: Location identifier
+      - schema:
+          type: string
+        name: event
+        in: path
+        required: true
+        description: Event type
+    get:
+      summary: Location Parameter History
+      operationId: get-location-id-state-event
+      responses:
+        '200':
+          description: The state at the requested time.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: number
+        '204':
+          description: No data availble for the requested time.
+        '400':
+          description: Bad Request. Returned if `at` is in the future.
+      tags:
+        - state
+        - location
+      description: Query the state of a tracked parameter at a specific point in time.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: at
+          description: An RFC3339 timestamp. If excluded `now` is assumed.
+        - schema:
+            type: string
+          in: query
+          name: from
+          description: Filter to a specific source type.
+  '/location/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Location Metadata
+      tags:
+        - metadata
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/location'
+        '404':
+          description: Not Found
+      operationId: get-location-id
+      description: Retrieves metadata available for a location.
+  '/location/{id}/utilisation':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: Location ID
+    get:
+      summary: Location Utilisation
+      tags:
+        - utilisation
+        - location
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: number
+                    minimum: 0
+                    maximum: 1
+                    description: Utilization level over the time window
+                required:
+                  - value
+      operationId: get-location-id-utilization
+      description: |-
+        Utilization insights for a location.
+
+        This combines together multiple signals (presence, people_count, in_use etc) to provide utilization metrics.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+        - schema:
+            type: string
+          in: query
+          name: stop
 components:
   schemas:
     rfc3339:
       type: string
-      title: rfc3339
+      title: RFC3339
       pattern: "/^(?<fullyear>\\d{4})-(?<month>0[1-9]|1[0-2])-(?<mday>0[1-9]|[12][0-9]|3[01])T(?<hour>[01][0-9]|2[0-3]):(?<minute>[0-5][0-9]):(?<second>[0-5][0-9]|60)(?<secfrac>\\.[0-9]+)?(Z|(\\+|-)(?<offset_hour>[01][0-9]|2[0-3]):(?<offset_minute>[0-5][0-9]))$/i"
       description: 'An [RFC3339](https://tools.ietf.org/html/rfc3339) date-time string'
       x-examples:
         Example: '2018-01-29T20:36:30+00:00'
-    event-type:
-      type: string
-      enum:
-        - power
-        - in_call
-        - booked
-        - in_use
-        - presence
-        - people_count
-        - connected
-        - running
-        - door_open
-        - door_access
-      title: Event Type
-      description: 'Example event types (note: will expand over time).'
+    location:
+      title: Location
+      type: object
+      description: |-
+        Metadata associated with a location.
+
+        Additional keys may exist containing supplementary metadata propogated by the originating system.
+      properties:
+        id:
+          type: string
+          description: Globally unique identifier for this location.
+        level:
+          type: string
+          description: Identifier of the level this location is in.
+        building:
+          type: string
+          description: Identifier of the building this location is in.
+        organisation:
+          type: string
+          description: Identifier of the organisation this location belongs to.
+        capacity:
+          type: integer
+          description: Number of people this location accomodates.
+        bookable:
+          type: boolean
+          description: True if usage can be reserved.
+      required:
+        - id
+        - level
+        - building
+        - organisation
   securitySchemes:
     API Key:
       name: X-API-Key
@@ -131,5 +237,19 @@ components:
       in: header
       description: ''
 tags:
+  - name: metadata
+    description: Queries providing metadata about a tracked entity
+  - name: location
+    description: Location queries
+  - name: level
+    description: Level queries
+  - name: building
+    description: Building queries
+  - name: organisation
+    description: Organistaion queries
+  - name: state
+    description: Queries providing historical state.
   - name: presence
-    description: Presence queries
+    description: Presence insights
+  - name: utilisation
+    description: Utilisation insights
