@@ -41,15 +41,19 @@ paths:
                 properties:
                   value:
                     type: number
-                    maximum: 1
+                    description: Predicted presence at the requested time
+                    enum:
+                      - 0
+                      - 1
+                  confidence:
+                    type: number
                     minimum: 0
-                    description: Presence confidence
+                    maximum: 1
                 required:
                   - value
               examples:
                 Example:
                   value:
-                    event: presence
                     value: 1
         '204':
           description: No event data is available for the time requested. This will occur if `at` is prior to any data being available.
