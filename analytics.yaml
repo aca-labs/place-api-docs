@@ -168,10 +168,14 @@ paths:
             type: string
           in: query
           name: start
+          required: true
+          description: An RFC3339 timestamp with the start of the query range
         - schema:
             type: string
           in: query
           name: stop
+          required: true
+          description: An RFC3339 timestamp with the end of the query range
 components:
   schemas:
     rfc3339:
