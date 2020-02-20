@@ -24,17 +24,83 @@ paths:
               schema:
                 $ref: '#/components/schemas/location'
         '404':
-          description: Not Found
+          description: The requested location is not tracked by this system.
       operationId: get-location-id
       description: Retrieves metadata available for a location.
       tags:
         - location
       security:
         - X-API-Key: []
+  '/level/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Query Level Metadata
+      tags:
+        - level
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/level'
+        '404':
+          description: The requested level is not tracked by this system.
+      operationId: get-level-id
+      description: Retrieves metedata available for a level.
+  '/building/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Query Building Metadata
+      tags:
+        - building
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/building'
+        '404':
+          description: The requested building is not tracked by this system.
+      operationId: get-building-id
+      description: Retrieves metadata available for a building.
+  '/organisation/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Query Organisation Metadata
+      tags:
+        - organisation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/building'
+        '404':
+          description: The requested location is not tracked by this system.
+      operationId: get-organisation-id
+      description: Retrieves metedata available for a building.
 components:
   schemas:
     location:
-      title: Location
+      title: Location Model
       type: object
       description: |-
         Metadata associated with a location.
@@ -43,7 +109,7 @@ components:
       properties:
         id:
           type: string
-          description: Globally unique identifier for this location.
+          description: Globally unique identifier.
         level:
           type: string
           description: Identifier of the level this location is in.
@@ -59,11 +125,64 @@ components:
         bookable:
           type: boolean
           description: True if usage can be reserved.
+        name:
+          type: string
       required:
         - id
         - level
         - building
         - organisation
+        - name
+    level:
+      title: Level Model
+      type: object
+      description: Additional keys may exist containing supplementary metadata propogated by the originating system.
+      properties:
+        id:
+          type: string
+          description: Globally unique identifier.
+        building:
+          type: string
+          description: Identifier for the building this level is in.
+        organisation:
+          type: string
+          description: Identifier for the organisations this level belongs to.
+        name:
+          type: string
+      required:
+        - id
+        - building
+        - organisation
+        - name
+    building:
+      title: Building Model
+      type: object
+      description: Additional keys may exist containing supplementary metadata propogated by the originating system.
+      properties:
+        id:
+          type: string
+          description: Globally unique identifier
+        organisation:
+          type: string
+        name:
+          type: string
+      required:
+        - id
+        - organisation
+        - name
+    organisation:
+      title: Organisation Model
+      type: object
+      description: Additional keys may exist containing supplementary metadata propogated by the originating system.
+      properties:
+        id:
+          type: string
+          description: Globally unique identifier.
+        name:
+          type: string
+      required:
+        - id
+        - name
   securitySchemes:
     X-API-Key:
       name: API Key
