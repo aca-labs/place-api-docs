@@ -51,7 +51,7 @@ paths:
               examples: {}
         '204':
           description: No event data is available for the time requested. This will occur if `at` is prior to any data being available.
-      operationId: get-location-id-presence
+      operationId: get-location-id-occupancy
       description: |-
         Provides occupancy insights for a location.
 
@@ -159,11 +159,13 @@ paths:
                 title: aggregate
               examples: {}
           headers: {}
-      operationId: get-location-id-utilization
+      operationId: get-location-id-utilisation
       description: |-
-        Utilization insights for a location.
+        Utilisation insights for a location.
 
-        Utilization provides a measure of capacity of a location to its detected usage.
+        Utilization provides a measure of capacity of a location to its detected usage. A location may be detected as occupied if for example a laptop, paperwork of other work materials are left on desk. If a person is not there are that point in time though, it would not be utilized.
+
+        Similarly, if meeting room or collaboration spaces is designed to accomodate 6 people, but only 3 are detected, this would have a utilization of 0.5 for that point in time.
       parameters:
         - schema:
             type: string
