@@ -96,7 +96,7 @@ paths:
         '404':
           description: The requested location is not tracked by this system.
       operationId: get-organisation-id
-      description: Retrieves metedata available for a building.
+      description: Retrieves metedata available for an organisation.
 components:
   schemas:
     location:
