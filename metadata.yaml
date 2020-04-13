@@ -53,6 +53,8 @@ paths:
           description: The requested level is not tracked by this system.
       operationId: get-level-id
       description: Retrieves metedata available for a level.
+      security:
+        - X-API-Key: []
   '/building/{id}':
     parameters:
       - schema:
@@ -75,6 +77,8 @@ paths:
           description: The requested building is not tracked by this system.
       operationId: get-building-id
       description: Retrieves metadata available for a building.
+      security:
+        - X-API-Key: []
   '/organisation/{id}':
     parameters:
       - schema:
@@ -97,6 +101,79 @@ paths:
           description: The requested location is not tracked by this system.
       operationId: get-organisation-id
       description: Retrieves metedata available for an organisation.
+      security:
+        - X-API-Key: []
+  '/organisation/{id}/buildings':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List Buildings
+      tags:
+        - organisation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/building'
+      operationId: get-organisation-id-buildings
+      description: Retrieve all buildings within an organisation.
+      security:
+        - X-API-Key: []
+  '/building/{id}/levels':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List Levels
+      tags:
+        - building
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/level'
+      operationId: get-building-id-levels
+      security:
+        - X-API-Key: []
+      description: List all levels within a building.
+  '/level/{id}/locations':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: List Locations
+      tags:
+        - level
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/location'
+      operationId: get-level-id-locations
+      security:
+        - X-API-Key: []
 components:
   schemas:
     location:
@@ -122,11 +199,21 @@ components:
         capacity:
           type: integer
           description: Number of people this location accomodates.
+          minimum: 0
         bookable:
           type: boolean
           description: True if usage can be reserved.
         name:
           type: string
+        email:
+          type: string
+          format: email
+          description: Resource URI associated with booking systems
+        description:
+          type: string
+        type:
+          type: string
+          description: ''
       required:
         - id
         - level
@@ -149,11 +236,20 @@ components:
           description: Identifier for the organisations this level belongs to.
         name:
           type: string
+        description:
+          type: string
+        locations:
+          type: array
+          description: "List of location ID's within on this level"
+          items:
+            type: string
       required:
         - id
         - building
         - organisation
         - name
+        - description
+        - locations
     building:
       title: Building Model
       type: object
@@ -164,11 +260,21 @@ components:
           description: Globally unique identifier
         organisation:
           type: string
+          description: Identifier of the organisation this building belongs to
+        levels:
+          type: array
+          description: "List of level ID's wihin this building"
+          items:
+            type: string
+        description:
+          type: string
         name:
           type: string
       required:
         - id
         - organisation
+        - levels
+        - description
         - name
     organisation:
       title: Organisation Model
@@ -180,9 +286,17 @@ components:
           description: Globally unique identifier.
         name:
           type: string
+        description:
+          type: string
+        buildings:
+          type: array
+          description: "List of builing ID's belonging to this organisation"
+          items:
+            type: string
       required:
         - id
         - name
+        - buildings
   securitySchemes:
     X-API-Key:
       name: API Key
