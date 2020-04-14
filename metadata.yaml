@@ -220,6 +220,8 @@ components:
         - building
         - organisation
         - name
+      x-tags:
+        - location
     level:
       title: Level Model
       type: object
@@ -250,6 +252,8 @@ components:
         - name
         - description
         - locations
+      x-tags:
+        - level
     building:
       title: Building Model
       type: object
@@ -276,6 +280,8 @@ components:
         - levels
         - description
         - name
+      x-tags:
+        - building
     organisation:
       title: Organisation Model
       type: object
@@ -297,6 +303,8 @@ components:
         - id
         - name
         - buildings
+      x-tags:
+        - organisation
   securitySchemes:
     X-API-Key:
       name: API Key
