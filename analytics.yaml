@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Analytics
-  version: '0.2'
+  version: '0.3'
   description: |-
     The Analytics API provides endpoints for querying current state, historical trends and summarisations of an environment and interactions within it.
 
@@ -30,53 +30,174 @@ paths:
         '200':
           description: ''
           headers: {}
-          content:
-            application/json:
-              schema:
-                title: aggregate
-                type: object
-                x-examples: {}
-                properties:
-                  value:
-                    type: number
-                    minimum: 0
-                    maximum: 1
-                  confidence:
-                    type: number
-                    minimum: 0
-                    maximum: 1
-                required:
-                  - value
-                  - confidence
-              examples: {}
-        '204':
-          description: No event data is available for the time requested. This will occur if `at` is prior to any data being available.
       operationId: get-location-id-occupancy
       description: |-
-        Provides occupancy insights for a location.
+        Provide occupancy metrics for a location.
 
-        Occupancy is defined as usage of a location. This incudes rooms, desks, lockers and other assets. At any point in time it is always either `0.0` (available) or `1.0` (in use), however the confidence of this may vary. When querying a time range, the ratio of in use to available time during the window is returned.
+        Occupancy is an an indicator of human usage of locations. A location is considered occupied when a person is physically there and using it. A location which has had materials left (laptops, paper etc), but no person present is considered un-occupied.
       security:
         - API Key: []
       parameters:
         - schema:
             type: string
           in: query
-          name: at
-          description: A point in time (RFC3339) to query.
-        - schema:
-            type: string
-          in: query
           name: start
           description: An RFC3339 timestamp with the start of the query range
+          required: true
         - schema:
             type: string
           in: query
           name: stop
           description: An RFC3339 timestamp with the end of the query range
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: every
       tags:
         - occupancy
-        - location
+  '/level/{id}/occupancy':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Level Occupancy
+      tags:
+        - occupancy
+      responses:
+        '200':
+          description: OK
+      operationId: get-level-id-occupancy
+      description: |-
+        Provide occupancy metrics, agreggated for a level within a building.
+
+        Occupancy is an an indicator of human usage of locations. A location is considered occupied when a person is physically there and using it. A location which has had materials left (laptops, paper etc), but no person present is considered un-occupied.
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          required: true
+          description: An RFC3339 timestamp with the start of the query range
+        - schema:
+            type: string
+          in: query
+          name: stop
+          required: true
+          description: An RFC3339 timestamp with the end of the query range
+        - schema:
+            type: string
+          in: query
+          name: every
+          description: ''
+        - schema:
+            type: string
+          in: query
+          name: group_by
+  '/building/{id}/occupancy':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Building Occupancy
+      tags:
+        - occupancy
+      responses:
+        '200':
+          description: OK
+      operationId: get-building-id-occupancy
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          description: An RFC3339 timestamp with the start of the query range
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: stop
+          description: An RFC3339 timestamp with the end of the query range
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: every
+        - schema:
+            type: string
+          in: query
+          name: group_by
+      description: |
+        Provide occupancy metrics, agreggated at the building level.
+
+        Occupancy is an an indicator of human usage of locations. A location is considered occupied when a person is physically there and using it. A location which has had materials left (laptops, paper etc), but no person present is considered un-occupied.
+  '/organisation/{id}/occupancy':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Organisation Occupancy
+      tags:
+        - occupancy
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: number
+                    description: Singular aggregation for the time range
+                  - type: array
+                    description: Regular time series
+                    items:
+                      type: number
+                  - type: object
+                    description: Aggregations grouped by a location attribute
+      operationId: get-organisation-id-occupancy
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          description: An RFC3339 timestamp with the start of the query range
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: stop
+          required: true
+          description: An RFC3339 timestamp with the end of the query range
+        - schema:
+            type: string
+            pattern: 'd+[smhdwy]'
+          in: query
+          name: every
+          description: Time interval to provide values for within the range
+        - schema:
+            type: string
+          in: query
+          name: group_by
+          description: ''
+      description: |-
+        Provide occupancy metrics, agreggated for an organisation.
+
+        Occupancy is an an indicator of human usage of locations. A location is considered occupied when a person is physically there and using it. A location which has had materials left (laptops, paper etc), but no person present is considered un-occupied.
   '/location/{id}/raw/{event}':
     parameters:
       - schema:
@@ -123,65 +244,6 @@ paths:
           description: Filter to a specific source type.
       tags:
         - history
-  '/location/{id}/utilisation':
-    parameters:
-      - schema:
-          type: string
-        name: id
-        in: path
-        required: true
-        description: Location ID
-    get:
-      summary: Location Utilisation
-      tags:
-        - utilisation
-        - location
-      responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  value:
-                    type: number
-                    minimum: 0
-                    maximum: 1
-                  confidence:
-                    type: number
-                    minimum: 0
-                    maximum: 1
-                required:
-                  - value
-                  - confidence
-                x-examples: {}
-                title: aggregate
-              examples: {}
-          headers: {}
-      operationId: get-location-id-utilisation
-      description: |-
-        Utilisation insights for a location.
-
-        Utilization provides a measure of capacity of a location to its detected usage. A location may be detected as occupied if for example a laptop, paperwork of other work materials are left on desk. If a person is not there are that point in time though, it would not be utilized.
-
-        Similarly, if meeting room or collaboration spaces is designed to accomodate 6 people, but only 3 are detected, this would have a utilization of 0.5 for that point in time.
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: at
-          description: A point in time (RFC3339) to query.
-        - schema:
-            type: string
-          in: query
-          name: start
-          description: An RFC3339 timestamp with the start of the query range
-        - schema:
-            type: string
-          in: query
-          name: stop
-          description: An RFC3339 timestamp with the end of the query range
 components:
   schemas:
     rfc3339:
@@ -208,7 +270,7 @@ tags:
     description: Building queries
   - name: organisation
     description: Organistaion queries
-  - name: state
+  - name: history
     description: Queries providing historical state.
   - name: occupancy
     description: Occupancy insights
