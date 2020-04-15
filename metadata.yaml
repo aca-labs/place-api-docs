@@ -180,10 +180,9 @@ components:
     location:
       title: Location Model
       type: object
-      description: |-
-        Metadata associated with a location.
-
-        Additional keys may exist containing supplementary metadata propogated by the originating system.
+      description: ''
+      x-tags:
+        - location
       properties:
         id:
           type: string
@@ -215,18 +214,21 @@ components:
         type:
           type: string
           description: ''
+        extra:
+          type: object
+          description: Additional metadata forwarded from the originating system
       required:
         - id
         - level
         - building
         - organisation
         - name
-      x-tags:
-        - location
     level:
       title: Level Model
       type: object
-      description: Additional keys may exist containing supplementary metadata propogated by the originating system.
+      description: ''
+      x-tags:
+        - level
       properties:
         id:
           type: string
@@ -246,6 +248,9 @@ components:
           description: "List of location ID's within on this level"
           items:
             type: string
+        extra:
+          type: object
+          description: Additional metadata forwarded from the originating system
       required:
         - id
         - building
@@ -253,12 +258,12 @@ components:
         - name
         - description
         - locations
-      x-tags:
-        - level
     building:
       title: Building Model
       type: object
-      description: Additional keys may exist containing supplementary metadata propogated by the originating system.
+      description: ''
+      x-tags:
+        - building
       properties:
         id:
           type: string
@@ -275,18 +280,21 @@ components:
           type: string
         name:
           type: string
+        extra:
+          type: object
+          description: Additional metadata forwarded from the originating system
       required:
         - id
         - organisation
         - levels
         - description
         - name
-      x-tags:
-        - building
     organisation:
       title: Organisation Model
       type: object
-      description: Additional keys may exist containing supplementary metadata propogated by the originating system.
+      description: ''
+      x-tags:
+        - organisation
       properties:
         id:
           type: string
@@ -300,12 +308,13 @@ components:
           description: "List of builing ID's belonging to this organisation"
           items:
             type: string
+        extra:
+          type: object
+          description: Additional metadata forwarded from the originating system
       required:
         - id
         - name
         - buildings
-      x-tags:
-        - organisation
   securitySchemes:
     X-API-Key:
       name: API Key
