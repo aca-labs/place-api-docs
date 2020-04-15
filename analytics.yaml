@@ -244,6 +244,150 @@ paths:
           description: Filter to a specific source type.
       tags:
         - history
+  '/building/{id}/usage':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Building Usage
+      tags:
+        - usage
+      responses:
+        '200':
+          description: OK
+      operationId: get-building-id-usage
+      description: |-
+        Provide usage metrics, agreggated at the building level.
+
+        Usage is an indicator of material usage of a location, or more concretely: the lack of availability. A location is considered in use when there are any signs of life. For example, a desk with a laptop, bag or paperwork present but no person would be considered in use. If a person was present, this location would also be considered in use.
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: stop
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: every
+        - schema:
+            type: string
+          in: query
+          name: group_by
+  '/location/{id}/usage':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Location Usage
+      tags:
+        - usage
+      responses:
+        '200':
+          description: OK
+      operationId: get-location-id-usage
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: stop
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: every
+  '/level/{id}/usage':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Level Usage
+      tags:
+        - usage
+      responses:
+        '200':
+          description: OK
+      operationId: get-level-id-usage
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: stop
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: every
+        - schema:
+            type: string
+          in: query
+          name: group_by
+  '/organisation/{id}/usage':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Organisation Usage
+      tags:
+        - usage
+      responses:
+        '200':
+          description: OK
+      operationId: get-organisation-id-usage
+      security:
+        - API Key: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: start
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: stop
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: every
+        - schema:
+            type: string
+          in: query
+          name: group_by
 components:
   schemas:
     rfc3339:
