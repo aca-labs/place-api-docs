@@ -77,7 +77,7 @@ paths:
       tags:
         - occupancy
         - location
-  '/location/{id}/state/{event}':
+  '/location/{id}/raw/{event}':
     parameters:
       - schema:
           type: string
@@ -100,17 +100,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  value:
-                    type: number
+                type: number
         '400':
           description: Bad Request. Returned if `at` is in the future.
-        '404':
-          description: No data availble for the requested time.
-      tags:
-        - state
-        - location
+        '':
+          content:
+            application/json:
+              schema:
+                type: number
+                description: The value of the tracked parameter at the requested time
       description: Query the state of a tracked parameter at a specific point in time.
       parameters:
         - schema:
@@ -123,6 +121,8 @@ paths:
           in: query
           name: src
           description: Filter to a specific source type.
+      tags:
+        - history
   '/location/{id}/utilisation':
     parameters:
       - schema:
